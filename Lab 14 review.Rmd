@@ -1,0 +1,255 @@
+---
+title: "Lab 14 review"
+author: "Jian Zheng"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+Previous labs on my [github](https://github.com/jzheng23/INST314)
+
+load packages (first install whichever you have not already installed)
+
+```{r}
+library(tidyverse)
+library(effectsize)
+library(pwr)
+```
+
+check the data
+
+```{r}
+#View(mpg)
+glimpse(mpg)
+```
+
+# Proportion & bar-chart
+
+## one proportion
+
+Compare one proportion with the population parameter
+
+prepare the data
+```{r}
+mpg$trans_auto = str_detect(mpg$trans,'auto*')
+table(mpg$trans_auto)
+```
+
+test
+```{r}
+prop.test(157,234,p = 0.5)
+```
+
+viz
+```{r}
+ggplot(data = mpg, aes(x = 1, fill = trans_auto)) +
+  geom_bar(position = 'fill') +
+  geom_hline(yintercept = 0.5,color = 'red')
+```
+
+effect size & power
+```{r}
+pwr.p.test(ES.h(0.6709402,0.5),n = 234,sig.level = 0.05)
+```
+
+
+## two proportions
+check the data
+```{r}
+table(mpg$year, mpg$trans_auto)
+table(mpg$year)
+```
+
+test
+```{r}
+prop.test(c(74,83),c(117,117))
+```
+
+
+viz
+```{r}
+ggplot(data = mpg, aes(x = as.factor(year), fill = trans_auto)) +
+  geom_bar(position = 'fill')
+```
+
+effect size & power
+```{r}
+pwr.p.test(ES.h(0.6324786, 0.7094017),n = 234,sig.level = 0.05)
+```
+
+
+# T-test & box-plot
+
+## 1 sample t-test
+
+t-test
+```{r}
+t.test(mpg$hwy, mu = 25)
+```
+
+viz
+```{r}
+ggplot(mpg, aes(x = 1, y = hwy))+
+  geom_boxplot() +
+  geom_hline (yintercept =  25,color = 'red')
+```
+
+effect size
+```{r}
+t_to_d(-4.0071, 233)
+```
+
+power
+```{r}
+pwr.t.test(234,-0.53,sig.level = 0.05,type = 'one.sample')
+```
+
+## Independent t-test
+t test
+```{r}
+table(mpg$year)
+t.test(hwy~year, data = mpg)
+```
+
+viz
+```{r}
+ggplot(mpg, aes(x = as.factor(year), y = hwy)) +
+  geom_boxplot()
+```
+
+effect size
+```{r}
+t_to_d(-0.032864, 231.64)
+```
+
+power
+```{r}
+pwr.t.test(234,-4.32e-03,sig.level = 0.05, type = 'two.sample')
+```
+
+
+## Paired t-test
+t-test
+```{r}
+t.test(mpg$cty, mpg$hwy, paired = TRUE)
+```
+
+reshape to long format to viz
+```{r}
+mpg_long <- mpg %>% 
+  pivot_longer( cols = c(cty,hwy), names_to = 'road', values_to = 'mpg') %>%
+  select('road','mpg')
+#View(mpg_long)
+```
+
+viz
+```{r}
+ggplot(mpg_long, aes(x = road, y = mpg)) +
+  geom_boxplot()
+```
+
+effect size
+```{r}
+t_to_d(-44.492, 233)
+```
+
+power
+```{r}
+pwr.t.test(234,d = -5.83,sig.level = 0.05,type = 'paired')
+```
+
+
+## ANOVA
+
+ANOVA
+```{r}
+anova(lm(hwy ~ drv, data = mpg))
+```
+
+Pairwise comparison
+```{r}
+pairwise.t.test(mpg$hwy, mpg$drv, p.adjust.method = "bonferroni")
+```
+
+Box plot
+```{r}
+ggplot(mpg, aes(x = drv, y = hwy)) +
+  geom_boxplot()
+```
+
+effect size
+```{r}
+F_to_f(f = 130.62,df = 2,df_error = 231)
+```
+
+power
+```{r}
+pwr.anova.test(k = 3,n = 234/3,f = 1.06)
+```
+# Chisq test & mosaic plot
+
+check the data
+```{r}
+table(mpg$cyl, mpg$drv)
+```
+
+test
+```{r}
+chisq.test(table(mpg$cyl, mpg$drv))
+```
+
+viz
+```{r}
+#install.packages('ggmosaic')
+library(ggmosaic)
+ggplot(data = mpg) +
+  geom_mosaic(aes(x = product(cyl), fill=drv))
+```
+
+effect size & power
+```{r}
+pwr.chisq.test(ES.w2(table(mpg$cyl, mpg$drv)/234),N = 234,df = 6)
+```
+
+
+# Regression & scatter plot
+
+test
+```{r}
+result <- lm(hwy ~ cty, mpg)
+summary(result)
+```
+
+viz
+```{r}
+ggplot(data = mpg, aes(x = cty, y = hwy))+
+  geom_point() +
+  geom_smooth(method = 'lm')
+```
+
+
+effect size
+```{r}
+eta2_to_f2(es = 0.9138)
+```
+
+
+power
+```{r}
+pwr.f2.test(u = 1,v = 232,f2 = 10.6)
+```
+
+# ggplot2 title
+
+For more information, see [ggplot2 title : main, axis and legend titles](http://www.sthda.com/english/wiki/ggplot2-title-main-axis-and-legend-titles)
+
+```{r}
+
+ggplot(data = mpg, aes(x = cty, y = hwy))+
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  ggtitle('Highway MPG and city MPG') +
+  xlab('City MPG') +
+  ylab('Highway MPG') +
+  theme_classic()
+
+```
