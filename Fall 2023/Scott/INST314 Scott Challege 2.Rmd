@@ -1,0 +1,480 @@
+---
+title: "INST314 Scott Challenge 2"
+output: html_document
+date: "2023-09-18"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Challenge 2: Exploring Univariate Distributions
+
+# Instructions
+
+This Challenge has three sections. In the first section, you will
+practice your familiarity with normal and uniform distributions, by
+generating random values as well as the exact probability density values
+from those distributions, and by comparing plots of these. In the second
+section, you will show a demonstration of the Central Limit Theorem. In
+the third section, you will examine some real data from one of the data
+sets collected by your discussion section, and use plots and numeric
+summaries to examine the distribution of a few variables from that data.
+
+The instructions below walk you through the steps to complete the
+Challenge. Separate "code hints" documents will give you advice on
+specific R or Python code to use.
+
+I recommend you use an R Notebook (.Rmd file) or a Python Jupyter
+Notebook (.ipynb file) to complete this Challenge, since you can
+intersperse text (in Markdown format) with code chunks. Otherwise, you
+can use a .R or .py file and use comments to respond to questions.
+Either way, you should be including all of the code you used to complete
+the Challenge.
+
+If you know you are missing elements of Challenge 1, then when you get
+to the third section (the one using real data), you can include items
+that address parts of Challenge 1, with respect to the data you are
+using. Please indicate where you are doing this, to make it easier for
+graders to give you credit for those items.
+
+# Part 1: random numbers and theoretical densities
+
+1.  We will start out by practicing generating random values. Being able
+    to generate random values from different distributions is a useful
+    tool for helping you remember and review what data from different
+    distributions should look like.
+
+Use a function in R or Python to generate a large number of values from
+a normal distribution. For this example, let's use the "standard normal"
+distribution, which has a mean of 0 and a standard deviation of 1. This
+is often the default in functions that generate values, but try to make
+it explicit in your code. - Note: the definition of "large" is vague,
+even though this description is used frequently in statistics. Pick a
+number that seems kind of big, then go through the next few items to see
+how the plots look, and then return to try different values. Since using
+a truly gigantic number can create issues with computer memory and
+processing capacity, you should be trying to pick a "large" number that
+is as small as possible but still large enough to make the distribution
+look very clear.
+
+```{r}
+norm_v <- rnorm(n = 10000)
+```
+
+2.  Plot a histogram of the random values from #1. If they don't look
+    "normal enough", try a larger number of values.
+
+```{r}
+library(ggplot2)
+ggplot(NULL, aes(x = norm_v)) +
+  geom_histogram(binwidth = 0.2)
+```
+
+3.  Generate a large number of values (the same that you settled on for
+    #1) from a uniform distribution between -3 and 3. (This range is
+    chosen to be comparable to the random normal data, for reasons
+    described below.)
+
+```{r}
+unif_v <- runif(10000, -3, 3)
+```
+
+4.  Plot a histogram of the random values from #3. If the distribution
+    doesn't look "uniform enough", try a larger number of values.
+
+```{r}
+ggplot(NULL, aes(x = unif_v)) +
+  geom_histogram(binwidth = 0.2)
+```
+
+5.  Using random numbers is convenient and useful for a lot of things,
+    but sometimes we also want to calculate precise values. The
+    histograms above give good approximate shapes for the distributions,
+    but now we want to be able to plot the /exact/ shape of each
+    distribution. In order to do that, we need to calculate probability
+    densities for a bunch of specific values of data.
+
+-   For example, the probability density from a standard normal
+    distribution for the value of 0 is just under 0.4. In order to
+    understand what these numbers mean, we can think about it like we
+    have a bag of numbers (our data) and we are trying to understand how
+    likely it is that we might draw a particular number. It's a bit more
+    mathematically complex when we have continuous distributions like
+    the normal distribution, but the intuition is similar. So when we
+    compute the probability density for a particular data value, like 0,
+    that means we are asking "how likely is it that I'll pull a 0 from
+    the data bag?".
+-   In order to have enough probability density values to plot a nice
+    distribution curve, we have to compute the densities for a bunch of
+    data values, across the range of the data. So for example, if the
+    data generally goes from 1 to 100, we'd want to get the density
+    values for 1, 1.5, 2, 2.5, and so on, up to 100. Or if we wanted a
+    more fine-grained plot, we could go by smaller increments, like 0.2
+    or 0.1. This sequence of steps is essentially forming a "grid" along
+    the x-axis of our plot.
+-   The range of a normal distribution is infinite, but we obviously
+    can't create a grid over infinite values, so we need to pick a
+    reasonable range. For a standard normal distribution (mean of 0,
+    standard deviation of 1), values rarely go below -4 or above 4. So
+    for this exercise, we will generate the "grid" of data values by
+    creating the sequence of numbers from -4 to 4, incrementing by 0.1.
+    These are the values that will be on the x-axis of our density plot.
+    
+```{r}
+x_grid = seq(-4,4,0.1)
+```
+    
+-   Once we have this sequence of values, we just need a function to
+    compute the normal probability density for each of those grid values
+    (e.g., the density for -4, -3.9, -3.8, and so on, up to the density
+    for 4). Apply the correct density function to the grid numbers, and
+    you'll get the densities, which will be the y-value axis values for
+    our plot.
+```{r}
+y_values = dnorm(x_grid)
+```
+    
+
+6.  After you've run the code to create a sequence of data values (from
+    -4 to 4, by 0.1) and calculate the densities for those, you can use
+    those two series of numbers as your x- and y-axis variables,
+    respectively. Create a line plot that uses those values, and you
+    should should have a nice curve that represents the theoretical
+    normal distribution. How does this shape compare to the shape of the
+    histogram you created in #2?
+```{r}
+ggplot(NULL) + geom_line(aes(x = x_grid, y = y_values))
+```
+    
+
+7.  Using the same process in #5, compute probability densities from a
+    uniform distribution that goes from -3 to 3, but use the same "grid"
+    (sequence of data values) as above, going from -4 to 4. These ranges
+    are chosen here so that you can visualize the "ends" of the uniform
+    distribution, since densities will drop abruptly to 0 outside the
+    distribution range.
+```{r}
+y_values_unif = dunif(x_grid,-3,3)
+```
+    
+
+8.  Plot the uniform densities from #7 the same way you plotted the
+    normal densities in 6. Compare this shape to the shape of your
+    histogram from #4.
+    
+```{r}
+ggplot(NULL) + geom_line(aes(x = x_grid, y = y_values_unif))
+```
+    
+
+9.  Now that we've seen that histograms of a large number of random
+    numbers are pretty close to their theoretical distributions, let's
+    examine the distributions of small numbers of random numbers.
+    Generate a small number of random numbers from a normal
+    distribution.
+    
+```{r}
+small_norm <- rnorm(30)
+```
+    
+
+10. Now create a combined plot, that plots both a histogram of the
+    numbers from #9, with a superimposed density curve like that from
+    #6. This makes it easier to visually compare the distribution in
+    your random numbers to the theoretical normal distribution. Hint:
+    you will need to adjust the histogram so that it is on the density
+    scale. How does the small number of random normal values compare to
+    the theoretical distribution? Re-run your code a few times, and see
+    how much it changes each time.
+```{r}
+ggplot(NULL) +
+  geom_line(aes(x= x_grid, y = y_values))+
+  geom_histogram(aes(x = small_norm, y = after_stat(density)))
+```
+    
+
+11. Let's do the same with the uniform distribution, so generate a small
+    number of random numbers from the same uniform distribution as
+    before (see #3).
+    
+```{r}
+small_unif <- runif(30, -3, 3)
+```
+    
+
+12. Now create a similar plot as in #10 with the uniform variables, by
+    plotting a histogram of the numbers from #11, and superimposing the
+    density curve from #8. How does the distribution from the small
+    number of random numbers compare to the theoretical uniform
+    distribution? Re-run the code from #11 and #12 a few times to see
+    how much it changes each time.
+    
+```{r}
+ggplot(NULL) +
+  geom_line(aes(x= x_grid, y = y_values_unif))+
+  geom_histogram(aes(x = small_unif, y = after_stat(density)))
+```
+    
+
+# Part 2: demonstrating the Central Limit Theorem
+
+In this section, we'll work through an illustration of the Central Limit
+Theorem, which should help us understand how the normal distribution can
+"emerge" under many circumstances.
+
+13. Let's start by simulating a simple generating process, like rolling
+    a die. But this time, let's roll a bigger die! If you've ever played
+    particularly nerdy board games, you might know that there are dice
+    with more sides than a standard six-sided cube die. One popular
+    shape is a 20-sided die, often called a "d20" in gaming parlance.
+
+- Start this section by creating a random sample of many (at least
+10,000) numbers drawn from the possible numbers that could be
+generated by a 20-sided die.
+
+```{r}
+d20 <- sample(x = 1:20, 10000, replace = TRUE)
+```
+
+- Hint: think about whether this is sampling "with replacement" or
+"without replacement", and make sure your code reflects that, or
+you will likely run into an error.
+
+14. Plot a histogram of the numbers from #13. What kind of distribution
+    does this appear to be?
+
+```{r}
+ggplot(NULL)+
+  geom_histogram(aes(x = d20), binwidth = 1)
+```
+Uniform
+
+15. Recall the Central Limit Theorem, which states that when many
+    (independent) processes are averaged (or summed) together, that
+    average (or sum) tends towards a normal distribution, as the number
+    of processes increases. How could this apply to our die-rolling
+    simulation? Run an altered version of your code from #13 to generate
+    numbers that still simulate the rolling of (fair) 20-sided dice, but
+    which result in generating numbers that follow a normal
+    distribution.
+    
+```{r}
+number_of_dice_rolled <- 30
+number_of_rolls <- 10000
+histogram_bin_width <- 10
+
+all_rolls <- rep(NA, number_of_rolls)
+for(roll in 1:number_of_rolls){
+    all_rolls[roll] <- sum(sample(1:20, size = number_of_dice_rolled, replace = TRUE))
+}
+```
+
+
+16. Now plot a histogram of these new values, to show that they look
+    normal.
+
+
+```{r}
+ggplot(data = NULL, aes(x = all_rolls)) +
+    geom_histogram(binwidth = histogram_bin_width)
+```
+
+17. Explain why the change you made in #15 resulted in a normal
+    distribution, despite the fact that we saw a different distribution
+    in #14.
+    
+It is the sum. 
+
+# Part 3: examining univariate distributions in real data
+
+In this section, we finally start to look at real data. We started out
+looking at random data and theoretical distributions so that we have
+some ideas about what kinds of distribution shapes we might expect.
+Hopefully you are starting to get a feel for what normally-distributed
+and uniformly-distributed data look like.
+
+With these beginning reference points, we can start to look at real data
+and examine what those distributions look like.
+
+To start this section, you need to select a data set. This was done
+during your discussion section, but if you were not there, you can find
+data sets on ELMS. Look under Files \> Unit 2 files \> Challenge 2 Data
+\> your course section. There should be at least one data set to pick
+from, along with code to help you load that data. Before you start this
+section, you need to download the data and use the code to load your
+data into R or Python, whichever you are using.
+
+I recommend that you go through some of the steps from Challenge 1 to
+verify to yourself that the data was loaded correctly, and to start
+getting an idea of which (numeric) columns you want to investigate in
+this part of the Challenge. Choose something interesting, and try to
+understand what the variable represents.
+
+```{r}
+library(readr)
+data1 <- read_csv('/home/jian/Downloads/airplane.csv')
+
+data2 <- read_csv('/home/jian/Downloads/healthcare.csv')
+```
+
+
+18. Select a (numeric) variable of interest from your data set, describe
+    it briefly, and plot a histogram of it.
+```{r}
+data2$avg_glucose_level
+ggplot(NULL) + geom_histogram(aes(x = data2$avg_glucose_level))
+```
+
+
+19. In Part 1 of this challenge, we plotted theoretical density curves
+    by computing exact probability densities over the range of our
+    (simulated) data. We will do that again later, but for now, we want
+    to also plot the /empirical/ probability density. This is the plot
+    that looks kind of like a "smoothed" histogram, with a line rather
+    than the binned bars of a histogram. Create a density plot here, and
+    notice how it follows the shape of your histogram from #18.
+
+```{r}
+ggplot(NULL) + geom_density(aes(x = data2$avg_glucose_level))
+```
+
+20. Return to the histogram and alter the bin width from the default,
+    which should make the bars narrower or wider. Pick a few different
+    values, and settle on the bin width that you think is the best for
+    this data.
+
+```{r}
+ggplot(NULL) + geom_histogram(aes(x = data2$avg_glucose_level), binwidth = 10)
+ggplot(NULL) + geom_histogram(aes(x = data2$avg_glucose_level), binwidth = 5)
+ggplot(NULL) + geom_histogram(aes(x = data2$avg_glucose_level), binwidth = 50)
+```
+
+21. Describe how you decided to pick the values of the bin width. For
+    example, how did you pick the first number you tried, and how did
+    you go from there?
+    
+    5, smooth?
+
+22. Describe what examining different bin widths made you notice about
+    your data, and why you liked the one you picked the best.
+  
+  \\
+
+23. Now let's compute some summary statistics. Compute the mean of the
+    variable you have been working with.
+
+```{r}
+mean(data2$avg_glucose_level)
+```
+
+
+24. Compute the standard deviation of the same variable.
+```{r}
+sd(data2$avg_glucose_level)
+```
+
+
+25. Compute the median of the same variable.
+
+```{r}
+median(data2$avg_glucose_level)
+```
+
+
+26. Compute quartiles (0%, 25%, 50%, 75%, and 100% quantiles) of the
+    same variable.
+```{r}
+quantile(data2$avg_glucose_level)
+```
+    
+
+27. Compute the following quantiles of the same data: 2.5%, 5%, 25%,
+    75%, 95%, and 97.5%.
+    
+    ```{r}
+quantile(data2$avg_glucose_level, c(.025, .05, .25, .75, .95, .975))
+```
+
+28. Plot a histogram again, but this time additionally plot two vertical
+    lines that mark the mean and median values you computed in #23 and
+    #25 above.
+
+
+```{r}
+ggplot(NULL) + 
+  geom_histogram(aes(x = data2$avg_glucose_level), binwidth = 5) +
+  geom_vline(aes(xintercept = mean(data2$avg_glucose_level)), color = 'red') +
+  geom_vline(aes(xintercept = median(data2$avg_glucose_level)), color = 'blue')
+```
+
+29. Do the same as in #28, but plot a density curve (like #19) instead
+    of a histogram.
+
+```{r}
+ggplot(NULL) + 
+  geom_density(aes(x = data2$avg_glucose_level)) +
+  geom_vline(aes(xintercept = mean(data2$avg_glucose_level)), color = 'red') +
+  geom_vline(aes(xintercept = median(data2$avg_glucose_level)), color = 'blue')
+```
+
+30. Examine the plot in #29, and describe the differences between the
+    mean, median, and the mode of the density plot.
+mode < median < mean
+
+31. With the histogram and density plot, we can roughly tell how normal
+    the distribution looks, but the best way to compare this
+    distribution to a normal distribution is to plot both at the same
+    time. This means we need to compute the appropriate probability
+    densities, as we did in Part 1 of this Challenge. Think about what
+    you need: the "grid" of data values for the x-axis, as well as the
+    parameters of the normal distribution for computing the densities.
+    Then compute the appropriate probability densities.
+
+```{r}
+x_grid <- seq(min(data2$avg_glucose_level),max(data2$avg_glucose_level),1)
+y_value <- dnorm(x_grid,mean(data2$avg_glucose_level), sd(data2$avg_glucose_level))
+
+```
+
+
+32. Use the densities from #31 to plot a normal distribution by itself,
+    and confirm that it looks right.
+
+```{r}
+ggplot(NULL) + 
+  geom_line(aes(x = x_grid, y = y_value))
+```
+
+33. Now combine the histogram (as in #19 or #20) with the theoretical
+    density plot from #32. Remember to adjust your histogram to be on
+    the density scale. This superimposed plot should make it even more
+    clear whether your data follows a normal distribution or not.
+
+```{r}
+ggplot(NULL) + 
+  geom_histogram(aes(x = data2$avg_glucose_level, y = after_stat(density)), binwidth = 5) +
+  geom_line(aes(x = x_grid, y = y_value))
+```
+
+34. Finally, select at least one more numeric variable, different from
+    the one you have been working on so far. If your data has enough
+    variables, pick three new ones to look at. For each of these
+    variable, plot a histogram. Which of the variables looks the most
+    like a normal distribution? Does this make sense for your data? Does
+    this tell you anything or raise any questions in your mind?
+
+  
+```{r}
+ggplot(NULL) + 
+  geom_histogram(aes(x = data2$age)) 
+```
+    
+```{r}
+ggplot(NULL) + 
+  geom_histogram(aes(x = as.double(data2$bmi))) 
+```
+    
