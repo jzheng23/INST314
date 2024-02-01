@@ -1,0 +1,55 @@
+---
+title: 'Lab 1: Introduction to R and RStudio'
+author: "Jian Zheng"
+date: "2024-02-01"
+output:
+  html_document: default
+  pdf_document: default
+---
+# Console
+```{r,results='hide'}
+1+3
+2*4
+```
+Try Up & Down on keyboard
+```{r}
+a <- 10
+a_long_name <- 30
+```
+Try Tab
+
+# Source
+```{r install, results='hide',message=FALSE, eval=FALSE}
+# If you haven't installed the openintro package yet, do so first!
+# install.packages('openintro')
+library(openintro)
+```
+Paste into a r file and comment install off
+
+# Environment
+```{r, results='hide',warning=FALSE}
+data(email)
+```
+View the dataset
+
+# History
+
+# File
+```{r}
+# Make sure to edit the path!
+# filepath <- "~/OneDrive/Spring 2024/INST314/Lab1/MillionSongsFinal.csv"
+# songs <- read.csv(filepath)
+```
+Import dataset 
+
+# Help
+```{r helpfile}
+help("install.packages")
+?filter
+```
+
+# Plot
+```{r}
+library(openintro)
+plot(email$line_breaks)
+```
