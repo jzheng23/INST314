@@ -1,0 +1,125 @@
+---
+title: "Lab Week 3: Reading Files & Working Directory"
+author: "Jian Zheng"
+date: "2024-02-08"
+output: html_document
+---
+
+# Reading data files
+
+## Full path
+
+### Windows
+
+When copying a path from Explorer, change backslashes \\ to forward slashes /. Example: Convert "C:\\Users\\Alex\\Downloads\\dataset.csv" to "C:/Users/Alex/Downloads/dataset.csv".
+
+
+### Mac
+Use Finder to locate your file. With the Finder window open, select View > Show Path Bar to display the file's path. Example path might look like "/Users/Alex/Downloads/dataset.csv".
+
+[Video](https://www.youtube.com/watch?v=gxU1wlBAsig&ab_channel=FullSpeedMac%26PC)
+
+## Through Files pane
+
+Navigate to the Files pane in RStudio, find your file, and click on it. This method is straightforward but less efficient for importing batches of files.
+
+## Through menu: File -> Import Dataset
+
+Similar to using the Files pane, go to File > Import Dataset in RStudio's menu. This opens a dialog that guides you through the import process, generating the import code.
+
+## Relative path
+
+Use relative paths to reference files based on the current working directory, making your code more portable.
+E.g., if the data file is in the Working Directory, you can import it with just the file name. 
+
+```{r}
+mooc <- read.csv("MoocsFinal.csv")
+```
+
+# Working Directory
+
+Where am I? What is the current folder?
+
+## getwd() & setwd()
+
+Use getwd() to display the current working directory, showing where R will look for files by default.
+
+```{r}
+getwd()
+```
+setwd("path/to/directory") changes the current working directory. Remember to use the correct path format for your operating system.
+
+E.g., the current WD is Lab2. If I change the WD to Lab1, I will be able to read the songs data file without a path.
+
+```{r}
+setwd("/home/jian/OneDrive/Spring 2024/INST314/Lab1")
+songs <- read.csv("MillionSongsFinal.csv")
+```
+
+## Through menu: Session -> Set Working Directory
+Alternatively, use RStudio's menu: Session -> Set Working Directory -> Choose Directory to graphically select a new working directory.
+E.g., back to Lab2
+
+# factor
+
+## What is a factor & why do we need it?
+
+In R, a "factor" is a data type used to store categorical variables. 
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+certified not as a factor
+```{r}
+mooc %>% 
+  ggplot(aes(x = nforum_posts, fill = certified)) +
+  geom_bar(position = "Fill")
+```
+
+certified as a factor
+```{r}
+mooc %>% 
+  ggplot(aes(x = nforum_posts, fill = factor(certified))) +
+  geom_bar(position = "Fill")
+```
+
+## class() & str()
+
+Let's compare the email and songs datasets.
+
+```{r}
+library(openintro)
+data(email)
+```
+
+```{r}
+class(email$spam)
+class(songs$mode)
+```
+
+```{r}
+str(email)
+```
+
+```{r}
+str(songs)
+```
+
+"email" is a well-defined dataset in R, but "songs" is not: some variables should be factors but are not defined as. Most csv files you read in will be like "songs", where some variables should be treated as factors for accurate analysis or plotting but are not automatically recognized as such, you can explicitly convert these variables to factors. 
+
+## is.factor() & as.factor
+
+```{r}
+is.factor(songs$mode)
+```
+
+```{r}
+songs$mode_af <- as.factor(songs$mode)
+```
+
+```{r}
+str(songs)
+```
+
