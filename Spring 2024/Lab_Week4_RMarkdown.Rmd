@@ -1,0 +1,99 @@
+---
+title: "Week 4 R Markdown & pnorm"
+author: "Jian Zheng"
+date: "2024-02-15"
+output: html_document
+---
+# Load packages
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(openintro)
+```
+
+# Norm
+
+Normal distribution
+
+## pnorm
+The `pnorm()` function finds the *proportion* that is below a **certain value** on the Normal distribution. This, as with the other Normal distribution functions, have a default value of 
+
+* 0 for the mean and 
+* 1 for the standard deviation.
+
+```{r}
+pnorm(1)
+```
+
+```{r}
+samplenorm <- rnorm(10000)
+samplenorm_df <- data.frame(samplenorm)
+samplenorm_df %>% ggplot(aes(samplenorm))+geom_density()+geom_vline(xintercept = 1)+geom_vline(xintercept = -1)
+```
+```{r}
+pnorm(1) # below 1, on the left side of 1
+1 - pnorm(1) # above 1, on the right side of 1
+pnorm(1) - pnorm(-1) # between -1 and 1
+```
+## qnorm
+We can use `qnorm()` to go the opposite way -- if we want to know what the cutoff is for a certain percentile.
+```{r}
+samplenorm_1 <- rnorm(10000, 10, 2)
+```
+
+```{r}
+samplenorm_1_df <- data.frame(samplenorm_1)
+samplenorm_1_df %>% ggplot(aes(samplenorm_1))+geom_density()
+```
+above 95% (or the top 5%)
+
+```{r}
+qnorm(.95, 10, 2)
+```
+```{r}
+samplenorm_1_df %>% ggplot(aes(samplenorm_1))+geom_density()+geom_vline(xintercept =  13.289)
+```
+
+# Calculate the percentage between a range
+`filer` and `nrow`
+
+```{r}
+data("email")
+```
+
+```{r}
+email %>% ggplot(aes(x = line_breaks)) + geom_density()
+```
+
+Between 500 and 1000 lines
+```{r}
+email %>% filter((line_breaks < 1000) & (line_breaks > 500)) %>% nrow()
+```
+
+```{r}
+nrow(email)
+```
+```{r}
+493/3921
+```
+
+# R Markdown
+
+1. Embedding R Code in Markdown Documents:
+R code can be embedded in chunks ({r} ... ) to execute code and display results within the document.
+Run a chunk or a line
+
+2. Markdown Syntax:
+Heading: Prefix the line with # for a heading. More #s indicate subheadings (e.g., ##, ###).
+Bold: Wrap text with ** or __ (e.g., **bold**).
+Italic: Wrap text with * or _ (e.g., *italic*).
+List: Ordered and Unordered:
+Unordered: Use - or * followed by a space.
+Ordered: Use numbers followed by a period and space (e.g., 1. , 2. ).
+
+3. YAML header
+Configures document parameters like title, author, and output format.
+Knitting Documents
+Html, pdf, word
+
