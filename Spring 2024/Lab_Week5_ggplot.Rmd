@@ -79,6 +79,8 @@ ggplot(mtcars, aes(x = mpg)) +
   labs(title = "Density Plot of MPG")
 ```
 
+[More types of plots](https://r-graph-gallery.com/index.html)
+
 ## Customize (optional) 
 
 Add titles, labels, and modify themes.
