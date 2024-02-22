@@ -1,0 +1,113 @@
+---
+title: "Lab_Week5_ggplot"
+author: "Jian Zheng"
+date: "2024-02-22"
+output: html_document
+---
+
+# Introduction to ggplot2
+ggplot2 is a powerful and a flexible R package for creating elegant data visualizations.
+
+# Installing and Loading ggplot2
+
+Installation: If you haven't installed ggplot2, you can do so by running install.packages("ggplot2"). 
+You only need to install the package **once**, unless you uninstalled r. 
+
+```{r}
+#install.packages("ggplot2")
+```
+
+Loading: To use ggplot2, load it into your R session with library(ggplot2).
+You need to load the package in each new session, e.g., in each new r or rmd file. 
+
+```{r}
+library(ggplot2)
+```
+
+# Basic Components of ggplot2
+
+- Data: The dataset you want to visualize.
+- Aesthetics (aes): Defines how variables in the data are mapped to visual properties (e.g., axes, colors, sizes).
+- Geometries (geom_): The type of plot or layer you are adding (e.g., points, lines, bars).
+
+# Creating a Basic Plot
+
+## Start with ggplot() function
+
+Define the dataset and aesthetics.
+```{r}
+#ggplot(data = your_dataset, aes(x = variable1, y = variable2))
+ggplot(data = mtcars, aes(x = wt, y = mpg)) 
+```
+
+## Add geom_ layer
+
+Specify the type of plot. E.g.,
+
+Scatter plots: + geom_point()
+```{r}
+ggplot(data = mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  labs(title = "Scatter Plot of MPG vs Weight")
+```
+
+Bar charts: + geom_bar() 
+```{r}
+ggplot(mtcars, aes(x = factor(cyl))) +
+  geom_bar() +
+  labs(title = "Bar Chart of Cylinder Counts")
+```
+
+Histogram: + geom_histogram()
+```{r}
+ggplot(mtcars, aes(x = mpg)) +
+  geom_histogram(binwidth = 3, fill = "green", alpha = 0.5, color = "black") +
+  labs(title = "Histogram of MPG")
+```
+
+Box plot: + geom_boxplot()
+```{r}
+ggplot(mtcars, aes(x = factor(cyl), y = mpg)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of MPG by Cylinder Count")
+```
+
+Density plots: + geom_density()
+```{r}
+ggplot(mtcars, aes(x = mpg)) +
+  geom_density(fill = "green", alpha = 0.5) +
+  labs(title = "Density Plot of MPG")
+```
+
+## Customize (optional) 
+
+Add titles, labels, and modify themes.
+```{r}
+#+ ggtitle("Your Title Here")
+#+ xlab("X-axis Label")
+#+ ylab("Y-axis Label")
+#+ theme_minimal()
+ggplot(data = mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  ggtitle("Fuel Efficiency vs. Car Weight") +
+  xlab("Weight (1000 lbs)") +
+  ylab("Miles per Gallon") +
+  theme_light()
+```
+
+# Sample code for ex 1
+
+```{r}
+# Generate data from a normal distribution
+data <- data.frame(x = rnorm(10000))
+
+# Create a density plot
+ggplot(data, aes(x = x)) +
+  geom_density(fill = "blue", alpha = 0.5) +
+  labs(title = "Density Plot", x = "Value", y = "Density") +
+  geom_vline(xintercept = 1, color = 'red') +
+  geom_text(aes(x = 1.1, y = 0.1, label = "a")) +
+  geom_vline(xintercept = -0.5, color = 'green')+
+  geom_text(aes(x = -0.6, y = 0.1, label = "b"))
+```
+
