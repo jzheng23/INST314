@@ -1,0 +1,118 @@
+---
+title: "Lab_Week6_ggplotAdvanced"
+author: "Jian Zheng"
+date: "2024-02-27"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+```
+
+
+# Customizing Scales
+
+Customize the scales of the scatter plot.
+```{r}
+ggplot(mtcars, aes(x = wt, y = mpg, color = as.factor(cyl))) +
+  geom_point() +
+  labs(title = "Custom Color MPG vs. Weight", color = "Cylinder Count") +
+  scale_x_continuous(limits = c(0, 6), breaks = c(1, 3, 5)) +
+  scale_y_continuous(limits = c(0, 35))
+```
+
+# Faceting for Multi-panel Plots
+
+Create a multi-panel plot to compare mpg vs. wt across different levels of cyl using facet_wrap().
+
+```{r}
+p <- ggplot(data = mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  labs(title = "MPG vs. Weight, Faceted by Cylinder Count")
+p + facet_wrap(vars(cyl))
+```
+
+Use facet_grid to specify the row and column.
+
+```{r}
+p + facet_grid(vars(am), vars(cyl))
+```
+
+# Combining Geom-Layers
+
+Create a plot that combines scatter plots with a smooth linear model line.
+
+```{r}
+ggplot(data = mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "MPG vs. Weight by Cylinder Count")
+```
+
+And a histogram with a density curve.
+
+```{r message=FALSE}
+ggplot(mtcars, aes(x = mpg)) +
+  geom_histogram(aes(y=after_stat(density))) +
+  geom_density() +
+  labs(title = "MPG Distribution in mtcars Dataset",
+       x = "Miles per Gallon",
+       y = "Density") +
+  theme_minimal()
+```
+
+# Statistical Transformations
+
+Display a histogram of mpg with a custom bin width.
+
+```{r message=FALSE}
+ggplot(mtcars, aes(x = mpg)) +
+  geom_histogram() +
+  labs(title = "Histogram of MPG", x = "MPG", y = "Frequency")
+```
+
+Change Y axis to density.
+
+```{r message=FALSE}
+ggplot(mtcars, aes(x = mpg)) +
+  geom_histogram(aes(y = after_stat(density))) +
+  labs(title = "Histogram of MPG", x = "MPG", y = "Density")
+```
+
+See the difference?
+
+# Arrange plots
+
+Combine the two plots above into one
+
+```{r message=FALSE}
+library(cowplot)
+
+p1 <- ggplot(mtcars, aes(x = mpg)) +
+  geom_histogram(aes(y = after_stat(density))) +
+  labs(title = "Histogram of MPG", x = "MPG", y = "Density")
+
+p2 <- ggplot(mtcars, aes(x = mpg)) +
+  geom_histogram() +
+  labs(title = "Histogram of MPG", x = "MPG", y = "Frequency")
+
+plot_col <- plot_grid(p1, p2, ncol = 1)
+
+plot_col
+```
+
+Too flat (and wide). 
+
+# Set size of plots
+
+In r markdown, {r fig.height=5, fig.width=5}
+
+```{r fig.height=5, fig.width=5}
+plot_col
+```
+
+# Save the plot to a file
+
+```{r}
+ggsave("my_plot.png", width = 5, height = 5, units = "in") 
+```
