@@ -1,0 +1,94 @@
+---
+title: "Lab_Week7_tTest"
+author: "Jian Zheng"
+date: "2024-03-06"
+output: html_document
+---
+
+```{r message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(openintro)
+```
+# One-sample t-test
+
+Is the mean of mpg different from 20?
+```{r}
+ggplot(mtcars, aes(x = mpg)) + geom_density() + geom_vline(xintercept = 20, color = "red") +
+  labs(title = "Density of Miles per Gallon (mpg)", x = "Miles per Gallon (mpg)") 
+```
+
+```{r}
+t.test(mtcars$mpg, mu = 20)
+```
+
+No, the mean of mpg is not different from 20.
+
+# Two-sample t-test
+
+Is the mpg of cars with automatic transmission different from that of cars with manual transmission?
+
+```{r}
+ggplot(mtcars, aes(x = factor(am), y = mpg, fill = factor(am))) +
+  geom_boxplot() +
+  labs(x = "Transmission (0 = Automatic, 1 = Manual)", y = "Miles per Gallon (mpg)", fill = "Transmission") 
+```
+
+## Using formula y ~ x
+
+```{r}
+t.test(mpg ~ am, data = mtcars)
+```
+
+## Comparing the two variables
+
+```{r}
+auto <- mtcars %>% filter(am == 0) %>% select(mpg)
+manual <- mtcars %>% filter(am == 1) %>% select(mpg)
+
+t.test(auto$mpg, manual$mpg)
+```
+
+Yes, cars with manual transmission have higher mpg than cars with automatifc transmission. 
+
+# Paired t-test
+
+Using the satgpa dataset from openintro
+```{r}
+data("satgpa")
+```
+
+```{r}
+library(cowplot)
+plot_v <- ggplot(satgpa, aes(y = sat_v)) + 
+  geom_boxplot(fill = "skyblue") +
+  ylim(c(min(c(satgpa$sat_v, satgpa$sat_m)), max(c(satgpa$sat_v, satgpa$sat_m)))) +
+  labs(title = "SAT Verbal Scores", y = "SAT Verbal")+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot_m <- ggplot(satgpa, aes(y = sat_m)) + 
+  geom_boxplot(fill = "lightgreen") +
+  ylim(c(min(c(satgpa$sat_v, satgpa$sat_m)), max(c(satgpa$sat_v, satgpa$sat_m)))) +
+  labs(title = "SAT Math Scores", y = "SAT Math")+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+plot_row <- plot_grid(plot_v, plot_m, ncol = 2)
+plot_row
+```
+## A one-sample t-test on the difference
+
+```{r}
+sat_diff <- satgpa$sat_v - satgpa$sat_m
+t.test(sat_diff)
+```
+
+## Comparing the two variables directly
+
+```{r}
+t.test(satgpa$sat_v, satgpa$sat_m, paired = TRUE)
+```
+
